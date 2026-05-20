@@ -3,8 +3,8 @@
 Proyecto final del taller de **_diseño y desarrollo de tecnología vestible (wearable)_**
 
 ### Elaborado por:
-- Emilio Carlos Fraise Armenta
-- Aurora Velazques
+- Carlos Emilio Fraise Armenta
+- Aurora Betshabé Vázquez Robles
 - Gael Martinez Santiago
 
 ### Componentes utilizados
