@@ -5,7 +5,7 @@
 #include <MPU6050.h>
 #include "SPI.h"
 
-#define REPORTING_PERIOD_MS 3000
+#define REPORTING_PERIOD_MS 1000
 #define TFT_CS 5
 #define TFT_RST 4
 #define TFT_DC 2
@@ -15,6 +15,7 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 MPU6050 mpu;
 PulseOximeter pox;
 
+uint32_t lastReport_CP = 0;
 uint32_t lastReport = 0;
 uint32_t lastBeat = 0;
 
@@ -35,9 +36,14 @@ float gyroBuffer[MA_SIZE] = {0};      // Buffer for gyroZ
 int bufferIndex = 0;                   // Current index in the buffer
 float gyroSum = 0;                     // Sum of the buffer elements
 
-// variables de cadencia de pasos
+// variables de conteo de pasos
 int stepCount = 0;                     // Total de numero de pasos
-float threshold = 0.5;                 // Umbral de detección
+float threshold = 0.6;                 // Umbral de detección
+float threshold_acc = 9;             // umbral de detección para accel
+
+// variables para la cadencia de pasos
+int cad_pasos_act = 0;
+float duracion_reporte_cadP = 10000;
 
 // funcion para promediar el giro z
 void filterData() {
@@ -64,7 +70,7 @@ void detectSteps() {
     static float prevFilt1 = 0; // Previous filtered gyroscope reading
 
     // Detect a step when the filtered gyroZ crosses the threshold from below
-    if (filt1 > threshold && prevFilt1 <= threshold) {
+    if (filt1 > threshold && accelMagnitude > threshold_acc && prevFilt1 <= threshold) {
         stepCount++;
     }
 
@@ -152,5 +158,15 @@ void loop() {
     Serial.println(stepCount);
 
     lastReport = millis();
+  }
+
+  if (millis() - lastReport_CP > duracion_reporte_cadP){
+
+    cad_pasos_act = stepCount/(duracion_reporte_cadP/60000);
+    Serial.print("Cadencia de pasos (pasos/min):");
+    Serial.println(cad_pasos_act);
+
+    stepCount = 0;
+    lastReport_CP = millis();
   }
 }
